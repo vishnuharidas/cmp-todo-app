@@ -3,16 +3,20 @@ package ui.home
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import currentTimeInMillis
 import data.model.TodoItem
 
 @Composable
-fun HomeScreen() {
-    var items by remember { mutableStateOf(listOf<TodoItem>()) }
-    var nextId by remember { mutableStateOf(1L) }
+fun HomeScreen(
+    viewModel: HomeViewModel = HomeViewModel()
+) {
 
     Scaffold(
         topBar = {
@@ -30,22 +34,30 @@ fun HomeScreen() {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
+                val id = currentTimeInMillis()
                 val newItem = TodoItem(
-                    id = nextId++,
-                    text = "Todo Item #$nextId"
+                    id = id,
+                    text = "Todo Item (ID: #$id)"
                 )
-                items = items + newItem
+                viewModel.addTodoItem(item = newItem)
             }) {
-                Text("+")
+                Icon(Icons.Default.Add, "Add")
             }
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.padding(paddingValues)
         ) {
-            items(items) { item ->
+            items(viewModel.homeScreenState.items) { item ->
                 ListItem(
-                    headlineContent = { Text(item.text) }
+                    headlineContent = { Text(item.text) },
+                    trailingContent = {
+                        IconButton(
+                            onClick = { viewModel.removeTodoItem(item.id) },
+                        ) {
+                            Icon(Icons.Default.Delete, "Delete Item")
+                        }
+                    }
                 )
             }
         }
