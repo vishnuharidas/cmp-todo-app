@@ -5,6 +5,7 @@ product:
 dependencies:
   - $compose.foundation: exported
   - $compose.material3: exported
+  - org.jetbrains.compose.material:material-icons-core:1.7.3 # Material icons CORE (limited)
   - org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.6  # ViewModel support for Compose
 
 settings:
