@@ -10,12 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import currentTimeInMillis
 import data.model.TodoItem
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = HomeViewModel()
+    viewModel: HomeViewModel = viewModel { HomeViewModel() }
 ) {
 
     Scaffold(
