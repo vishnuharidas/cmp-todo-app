@@ -5,6 +5,7 @@ product:
 dependencies:
   - $compose.foundation: exported
   - $compose.material3: exported
+  - org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.6  # ViewModel support for Compose
 
 settings:
   compose:
