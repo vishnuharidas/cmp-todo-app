@@ -7,3 +7,5 @@ dependencies:
 settings:
   compose: enabled
   junit: junit-4
+  android:
+    minSdk: 23
