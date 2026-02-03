@@ -5,9 +5,22 @@ product:
 dependencies:
   - $compose.foundation: exported
   - $compose.material3: exported
-  - org.jetbrains.compose.material:material-icons-core:1.7.3 # Material icons CORE (limited)
-  - org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.6  # ViewModel support for Compose
+  - org.jetbrains.compose.material:material-icons-core:1.7.3: exported # Material icons CORE (limited)
+  - org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.6: exported  # ViewModel support for Compose
+  - org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6: exported  # Collect Flows with Lifecycle Support
+  # Room Support
+  - androidx.sqlite:sqlite-bundled:2.6.2: exported
+  - androidx.room:room-runtime:2.8.4: exported
+
+dependencies@jvm:
+  - org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0
 
 settings:
   compose:
     enabled: true
+  kotlin:
+    ksp:
+      processors:
+        - androidx.room:room-compiler:2.8.4
+      processorOptions:
+        room.schemaLocation: ./schema
