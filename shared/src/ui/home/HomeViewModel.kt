@@ -1,57 +1,63 @@
 package ui.home
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import data.model.TodoItem
-import ui.home.HomeViewModel.HomeScreenState.Status
+import androidx.lifecycle.viewModelScope
+import data.db.AppDatabase
+import data.db.TodoEntity
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    val database: AppDatabase
+) : ViewModel() {
 
-    private val _todoItems = mutableListOf<TodoItem>()
+    private val _isLoading = MutableStateFlow(false)
 
-    private var _homeScreenState by mutableStateOf<HomeScreenState>(
+    val uiState: StateFlow<HomeScreenState> = combine(
+        _isLoading,
+        database.getDao()
+            .getAllAsFlow()
+            .distinctUntilChanged()
+            .catch { emit(emptyList()) },
+    ) { loading, items ->
+
         HomeScreenState(
-            // Initial state
-            status = Status.NONE,
-            items = _todoItems
+            isLoading = loading,
+            items = items,
         )
+
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = HomeScreenState(isLoading = false, items = emptyList())
     )
-    val homeScreenState: HomeScreenState get() = _homeScreenState
 
-    fun addTodoItem(item: TodoItem) {
-        _todoItems.add(item)
+    fun addTodoItem(title: String, content: String) {
 
-        // Update state
-        _homeScreenState = HomeScreenState(
-            status = Status.SUCCESS,
-            items = ArrayList(_todoItems)
-        )
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            val newItem = TodoEntity(title = title, content = content)
+
+            try {
+                database.getDao().insert(newItem)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+
     }
 
     fun removeTodoItem(id: Long) {
-        _todoItems.removeAll { it.id == id }
-
-        // Update state
-        _homeScreenState = HomeScreenState(
-            status = Status.SUCCESS,
-            items = ArrayList(_todoItems)
-        )
+        // TODO
     }
 
 
+    // State is not mutually exclusive here (
     data class HomeScreenState(
-        val status: Status = Status.NONE,
+        val isLoading: Boolean = false,
         val error: String? = null,
-        val items: List<TodoItem>
-    ) {
-        enum class Status {
-            NONE,
-            LOADING,
-            SUCCESS,
-            ERROR
-        }
-    }
+        val items: List<TodoEntity>
+    )
 
 }

@@ -8,16 +8,21 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import currentTimeInMillis
-import data.model.TodoItem
+import data.db.AppDatabase
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel { HomeViewModel() }
+    appDatabase: AppDatabase,
+    viewModel: HomeViewModel = viewModel { HomeViewModel(appDatabase) }
 ) {
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -35,12 +40,8 @@ fun HomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                val id = currentTimeInMillis()
-                val newItem = TodoItem(
-                    id = id,
-                    text = "Todo Item (ID: #$id)"
-                )
-                viewModel.addTodoItem(item = newItem)
+                val time = currentTimeInMillis()
+                viewModel.addTodoItem("ToDo Item (ID: #${time})", "Added on $time")
             }) {
                 Icon(Icons.Default.Add, "Add")
             }
@@ -49,9 +50,9 @@ fun HomeScreen(
         LazyColumn(
             modifier = Modifier.padding(paddingValues)
         ) {
-            items(viewModel.homeScreenState.items) { item ->
+            items(uiState.items) { item ->
                 ListItem(
-                    headlineContent = { Text(item.text) },
+                    headlineContent = { Text(item.title) },
                     trailingContent = {
                         IconButton(
                             onClick = { viewModel.removeTodoItem(item.id) },
